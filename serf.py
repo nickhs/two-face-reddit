@@ -155,14 +155,14 @@ def connect_ssh(url):
 
 
 def update_twoface():
-    exec_string = 'cd /opt/two-face/ && sudo git pull'
+    exec_string = 'cd /opt/two-face-reddit/ && sudo git pull'
     stdin, stdout, stderr = client.exec_command(exec_string)
     print "s: "+stdout.read()
     print "e: "+stderr.read()
 
 
-def create_new_user(username):
-    exec_string = 'casperjs --username=%s /opt/two-face/actions/new_user.js' % username
+def create_new_user(username, host):
+    exec_string = 'casperjs --username=%s --host=%s /opt/two-face-reddit/actions/new_user.js' % (username, host)
     stdin, stdout, stderr = client.exec_command(exec_string)
 
     print "s: "+stdout.read()
@@ -170,6 +170,8 @@ def create_new_user(username):
 
 
 def perform_upvote(username, password, title):
+    return  # Unimplemented
+
     if title == '':
         exec_string = 'casperjs --username=%s --password=%s /opt/two-face/actions/upvote.js' % (username, password)
 
