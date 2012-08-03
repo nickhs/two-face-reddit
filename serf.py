@@ -8,7 +8,7 @@ from serf_settings import *
 conn = None
 client = None
 
-def create(username, region='us-west-2'):
+def create(username, region='us-west-2', host='http://nickhs.com:8060'):
     make_connection(region)
     instance = create_instance()
     if instance is None:
@@ -18,7 +18,7 @@ def create(username, region='us-west-2'):
     status = []
     status.append(connect_ssh(instance.public_dns_name))
     status.append(update_twoface())
-    status.append(create_new_user(username))
+    status.append(create_new_user(username, host))
     
     if [False, None] in status:
         terminate_instance(instance)
