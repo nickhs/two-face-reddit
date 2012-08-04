@@ -8,7 +8,7 @@ from serf_settings import *
 conn = None
 client = None
 
-def create(username, region='us-west-2', host='http://nickhs.com:8060'):
+def create(username, region='us-west-2', host='http://nickhs.com:8060/captcha'):
     make_connection(region)
     instance = create_instance()
     if instance is None:
