@@ -7,8 +7,13 @@ var casper = require('casper').create({
     loadPlugins: true,
     localToRemoteUrlAccessEnabled: true,
     userAgent: "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+    webSecurity: false,
   },
   safeLogs: false,
+  viewportSize: {
+    height: 800,
+    width: 1280,
+  }
 });
 
 var global_return = null;
@@ -49,26 +54,27 @@ casper.start('http://www.reddit.com/', function() {
   this.click("#header-bottom-right > span > a");
 });
 
-casper.waitFor(function check() {
-    return false;
-}, function then() {
-}, function timeout() {
-    var data = this.captureBase64('png', '.capimage');
-    handleImage(data);
-    
-    var check = setInterval(function() {
-      if (global_return != null) {
-        clearInterval(check);
-        casper.fill('form#login_reg', {
-          'user': casper.cli.get('username'),
-          'passwd': 'beagle',
-          'passwd2': 'beagle',
-          'captcha': global_return,
-        }, true);
-        casper.die("Done!", 0);
-      }
-    }, 5000);
-}, 1000);
+casper.wait(1000, function() {
+  var data = this.captureBase64('png', '.capimage');
+  handleImage(data);
+  
+  var check = setInterval(function() {
+    if (global_return != null) {
+      clearInterval(check);
+      casper.fill('form#login_reg', {
+        'user': casper.cli.get('username'),
+        'passwd': 'beagle',
+        'passwd2': 'beagle',
+        'captcha': global_return,
+      }, true);
+
+      setTimeout(function() {
+        casper.capture('out.png');
+        casper.die('Done!', 0);
+      }, 4000);
+    }
+  }, 5000);
+});
 
 casper.run(function() {
   casper.log("Halted exit");
