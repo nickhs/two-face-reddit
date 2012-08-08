@@ -18,7 +18,18 @@ var casper = require('casper').create({
 
 var dump = require('utils').dump;
 
-casper.start('http://www.reddit.com/r/python', function() {
+
+function getUrl() {
+  var base  = "http://reddit.com/";
+
+  if (casper.cli.has('subreddit')) {
+    return base + "r/" + casper.cli.get('subreddit');
+  }
+
+  return base;
+}
+
+casper.start(getUrl(), function() {
   if (!(this.cli.has('post') && this.cli.has('username') && this.cli.has('password'))) {
     casper.die("You need to specify a username, password and post!", 1);
   }
