@@ -16,9 +16,11 @@ var casper = require('casper').create({
   }
 });
 
-casper.start('http://www.reddit.com/', function() {
+var dump = require('utils').dump;
+
+casper.start('http://www.reddit.com/r/python', function() {
   if (!(this.cli.has('post') && this.cli.has('username') && this.cli.has('password'))) {
-    casper.die("You need to specify a post!", 1);
+    casper.die("You need to specify a username, password and post!", 1);
   }
 
   this.click("#header-bottom-right > span > a");
@@ -32,20 +34,40 @@ casper.then(function() {
 });
 
 casper.then(function() {
-  this.wait(3000)
+  this.wait(1000)
 });
 
 casper.then(function() {
-  this.echo(this.getTitle());
   
-  var links = this.evaluate(function() {
-    return document.querySelectorAll('.thing.link');
+  var ret = this.evaluate(function() {
+    titles = []
+    var links = document.querySelectorAll('.thing.link');
+    for (var i = 0; i < links.length; ++i) {
+      var item = {};
+      item.title = links[i].querySelector('a.title').textContent;
+      item.url = links[i].querySelector('a.title').href;
+      links[i].querySelector('div.arrow.up').className += ' foo-'+i;
+      titles.push(item)
+    }
+    return titles;
   });
 
-  for (var a = 0; a < links.length; a++) {
-    var text = links[a].getElementsByTagName('a')[0].textContent
-    if (text == self.cli.get('post')) {
-      self.log('Match found!', 'info');
+  for (var i = 0; i < ret.length; ++i) {
+    var text = ret[i].title;
+    this.echo(text);
+    if (text == this.cli.get('post')) {
+      this.log('Match found!', 'info');
+      this.log(ret[i].title);
+      this.log(ret[i].url);
+      this.mouseEvent('mouseover', 'div.foo-'+i);
+      this.wait(1000);
+      this.mouseEvent('mousedown', 'div.foo-'+i);
+      this.wait(500);
+      this.mouseEvent('click', 'div.foo-'+i);
+      this.wait(500);
+      this.mouseEvent('mouseup', 'div.foo-'+i);
+      this.wait(1000);
+      this.mouseEvent('mouseout', 'div.foo-'+i);
     }
   }
 });
