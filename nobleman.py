@@ -1,11 +1,14 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 import datetime
+from rq import Queue, use_connection
+from serf import create, upvote, kill
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./crusade.db'
 db = SQLAlchemy(app)
-
+use_connection()
+q = Queue('main', default_timeout=1200)
 
 class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +55,16 @@ class Command(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
 
 
+def create_new_user(username, password='password'):
+    return q.enqueue(create, username=username)
+
+
+def upvote_post(username, title=''):
+    return q.enqueue(upvote, username=username, title=title)
+
+
+def rollback(username):
+    return q.enqueue(kill, username)
+
 if __name__ == '__main__':
     app.run()
-
